@@ -1,0 +1,51 @@
+﻿<Page
+    x:Class="LanguageSupport.SelectRecognitionEngine"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:LanguageSupport"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel
+            x:Name="HeaderPanel"
+            Grid.Row="0"
+            Orientation="Horizontal">
+            <TextBlock
+                x:Name="Header"
+                Margin="10,0,0,0"
+                Style="{ThemeResource HeaderTextBlockStyle}"
+                Text="Advanced international ink recognition sample" />
+            <ComboBox x:Name="comboInstalledRecognizers" Margin="50,0,10,0">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button
+                x:Name="buttonRecognize"
+                Margin="50,0,10,0"
+                Content="Recognize"
+                IsEnabled="False" />
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <InkCanvas x:Name="inkCanvas" Grid.Row="0" />
+            <TextBlock
+                x:Name="recognitionResult"
+                Grid.Row="1"
+                Margin="50,0,10,0" />
+        </Grid>
+    </Grid>
+</Page>

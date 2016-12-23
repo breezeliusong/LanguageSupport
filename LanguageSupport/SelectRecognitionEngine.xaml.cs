@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -14,19 +15,16 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace LanguageSupport
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class SelectRecognitionEngine : Page
     {
-
-        //we demonstrate how to use the handwriting recognition engine, 
-        //associated with the default installed language pack, to interpret a set of strokes on an InkCanvas.
-        public MainPage()
+        public SelectRecognitionEngine()
         {
             this.InitializeComponent();
             // Set supported inking device types.
@@ -41,24 +39,54 @@ namespace LanguageSupport
             drawingAttributes.FitToCurve = true;
             inkCanvas.InkPresenter.UpdateDefaultDrawingAttributes(drawingAttributes);
 
+            // Populate the recognizer combo box with installed recognizers.
+            InitializeRecognizerList();
+
+            // Listen for combo box selection.
+            comboInstalledRecognizers.SelectionChanged +=
+                comboInstalledRecognizers_SelectionChanged;
+
             // Listen for button click to initiate recognition.
-            recognize.Click += Recognize_Click;
+            buttonRecognize.Click += Recognize_Click;
+
+        }
+        private InkRecognizerContainer inkRecognizerContainer;
+
+        // Populate the recognizer combo box with installed recognizers.
+        private void InitializeRecognizerList()
+        {
+            // Create a manager for the handwriting recognition process.
+            inkRecognizerContainer = new InkRecognizerContainer();
+            // Retrieve the collection of installed handwriting recognizers.
+            IReadOnlyList<InkRecognizer> installedRecognizers =
+                inkRecognizerContainer.GetRecognizers();
+            Debug.WriteLine(installedRecognizers.Count);
+            // inkRecognizerContainer is null if a recognition engine is not available.
+            if (!(inkRecognizerContainer == null))
+            {
+                comboInstalledRecognizers.ItemsSource = installedRecognizers;
+                buttonRecognize.IsEnabled = true;
+            }
+        }
+
+        // Handle recognizer change.
+        private void comboInstalledRecognizers_SelectionChanged(
+            object sender, SelectionChangedEventArgs e)
+        {
+            inkRecognizerContainer.SetDefaultRecognizer(
+                (InkRecognizer)comboInstalledRecognizers.SelectedItem);
         }
 
         // Handle button click to initiate recognition.
         private async void Recognize_Click(object sender, RoutedEventArgs e)
         {
             // Get all strokes on the InkCanvas.
-            IReadOnlyList<InkStroke> currentStrokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
+            IReadOnlyList<InkStroke> currentStrokes =
+                inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
 
             // Ensure an ink stroke is present.
             if (currentStrokes.Count > 0)
             {
-                // Create a manager for the InkRecognizer object
-                // used in handwriting recognition.
-                InkRecognizerContainer inkRecognizerContainer =
-                    new InkRecognizerContainer();
-
                 // inkRecognizerContainer is null if a recognition engine is not available.
                 if (!(inkRecognizerContainer == null))
                 {
@@ -72,10 +100,11 @@ namespace LanguageSupport
                     {
                         string str = "Recognition result\n";
                         // Iterate through the recognition results.
-                        foreach (var result in recognitionResults)
+                        foreach (InkRecognitionResult result in recognitionResults)
                         {
                             // Get all recognition candidates from each recognition result.
-                            IReadOnlyList<string> candidates = result.GetTextCandidates();
+                            IReadOnlyList<string> candidates =
+                                result.GetTextCandidates();
                             str += "Candidates: " + candidates.Count.ToString() + "\n";
                             foreach (string candidate in candidates)
                             {
@@ -94,7 +123,9 @@ namespace LanguageSupport
                 }
                 else
                 {
-                    Windows.UI.Popups.MessageDialog messageDialog = new Windows.UI.Popups.MessageDialog("You must install handwriting recognition engine.");
+                    Windows.UI.Popups.MessageDialog messageDialog =
+                        new Windows.UI.Popups.MessageDialog(
+                            "You must install handwriting recognition engine.");
                     await messageDialog.ShowAsync();
                 }
             }
