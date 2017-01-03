@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Input.Inking;
@@ -75,6 +76,28 @@ namespace LanguageSupport
         {
             inkRecognizerContainer.SetDefaultRecognizer(
                 (InkRecognizer)comboInstalledRecognizers.SelectedItem);
+        }
+
+        //change language in c# code
+        private async void ChangeLagButton_Click(object sender, RoutedEventArgs e)
+        {
+            var list = Windows.Globalization.ApplicationLanguages.ManifestLanguages;
+            Debug.Write(list.Count);
+            if (Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride=="en-US")
+            {
+                TestButton.Content = "HELLO english";
+                var culture = new System.Globalization.CultureInfo("pl");
+                Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = culture.Name;
+                Windows.ApplicationModel.Resources.Core.ResourceContext.GetForCurrentView().Reset();
+                Windows.ApplicationModel.Resources.Core.ResourceContext.GetForViewIndependentUse().Reset();
+                //
+                await Task.Delay(100);
+                //To refresh the UI without restart the phone
+                this.Frame.Navigate(this.GetType());
+            }else if(Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride == "zh-CN")
+            {
+                TestButton.Content = "HELLO china";
+            }
         }
 
         // Handle button click to initiate recognition.

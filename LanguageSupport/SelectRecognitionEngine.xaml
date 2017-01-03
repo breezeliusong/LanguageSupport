@@ -35,6 +35,11 @@
                 Margin="50,0,10,0"
                 Content="Recognize"
                 IsEnabled="False" />
+            <Button
+                Name="TestButton"
+                Margin="50,0,10,0"
+                Click="ChangeLagButton_Click"
+                Content="ChangeLagButton" />
         </StackPanel>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
